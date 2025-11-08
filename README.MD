@@ -1,6 +1,6 @@
 # QA Chatbot
 
-A document-based Question Answering (QA) chatbot using FAISS for vector search, SentenceTransformers for embeddings, and HuggingFace Transformers for answer generation. Supports PDF, DOCX, TXT, XLSX, and CSV file ingestion, chunking, and semantic search.
+A document-based Question Answering (QA) chatbot using FAISS for vector search, SentenceTransformers for embeddings, and HuggingFace LLM Model for answer generation. Supports PDF, DOCX, TXT, XLSX, and CSV file ingestion, chunking, and semantic search.
 
 
 ## Project Structure
