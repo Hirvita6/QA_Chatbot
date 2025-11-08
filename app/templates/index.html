@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>FastAPI RAG Demo</title>
+    <style>
+  body { font-family: Arial, sans-serif; margin: 30px; background: #f9f9f9; }
+  h1 { color: #333; }
+  .box {
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  textarea, input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  textarea { height: 100px; }
+  button {
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover { background-color: #0056b3; }
+  #answer {
+    background: #f0f7ff;
+    padding: 10px;
+    border-radius: 5px;
+    white-space: pre-wrap;
+  }
+  pre {
+    background: #f7f7f7;
+    padding: 10px;
+    border-radius: 5px;
+    white-space: pre-wrap;
+  }
+</style>
+  </head>
+  <body>
+    <h1>Document Upload & QA (RAG)</h1>
+
+    <div class="box">
+      <h3>Upload Files (PDF, DOCX, XLSX, TXT)</h3>
+      <input id="file" type="file" multiple />
+      <button id="uploadBtn">Upload</button>
+      <div id="uploadStatus"></div>
+    </div>
+
+    <div class="box">
+      <h3>Ask a Question</h3>
+      <form id="askForm">
+        <div>
+          <label>Question</label><br>
+          <textarea id="question"
+            placeholder="Type your question here..."></textarea>
+        </div>
+        <div>
+          <label for="model">Model (Hugging Face)</label><br>
+          <select id="model">
+            <option value="deepset/tinyroberta-squad2"
+              selected>deepset/tinyroberta-squad2 (Extractive QA)</option>
+            <option value="google/flan-t5-small">google/flan-t5-small
+              (Generative QA)</option>
+          </select>
+        </div>
+        <button type="submit">Ask</button>
+      </form>
+      <h4>Answer</h4>
+      <div id="answer"></div>
+      <h4>Contexts</h4>
+      <pre id="contexts"></pre>
+    </div>
+
+    <script>
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('file');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const askForm = document.getElementById('askForm');
+    const answerBox = document.getElementById('answer');
+    const contextBox = document.getElementById('contexts');
+
+    // Upload files
+    uploadBtn.addEventListener('click', async () => {
+      const files = fileInput.files;
+      if (!files.length) {
+        alert('Please select files first.');
+        return;
+      }
+      const formData = new FormData();
+      for (let f of files) {
+        formData.append('files', f);
+      }
+      uploadStatus.innerText = 'Uploading...';
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        uploadStatus.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        console.error(err);
+        uploadStatus.innerText = 'Upload failed.';
+      }
+    });
+
+    // Ask question
+    askForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = document.getElementById('question').value.trim();
+      const model = document.getElementById('model').value.trim();
+
+      if (!question) {
+        alert('Please enter a question.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('question', question);
+      formData.append('model_name', model);
+
+      answerBox.innerText = 'Generating answer...';
+      contextBox.innerText = '';
+
+      try {
+        const response = await fetch('/ask', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        answerBox.innerText = data.answer || '(No answer returned)';
+        contextBox.innerText = (data.contexts || []).join('\\n\\n---\\n\\n');
+      } catch (err) {
+        console.error(err);
+        answerBox.innerText = 'Error while getting answer.';
+      }
+    });
+  </script>
+  </body>
+</html>

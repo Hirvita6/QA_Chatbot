@@ -1,0 +1,21 @@
+# FastAPI and server
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+
+# Document parsing
+pypdf
+pdfplumber
+python-docx
+pandas
+openpyxl
+
+# Machine learning & embeddings
+sentence-transformers
+faiss-cpu
+transformers
+torch
+
+# Utilities
+numpy
