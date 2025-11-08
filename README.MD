@@ -34,7 +34,7 @@ QA_Chatbot/
 
 ### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Hirvita6/QA_Chatbot.git
 cd QA_Chatbot
 ```
 
